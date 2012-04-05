@@ -426,9 +426,12 @@ public class VoiceDialerActivity extends Activity {
                 if (false) Log.d(TAG, "headset status " + state);
 
                 // We are already connnected to a headset
-                if (state == BluetoothHeadset.STATE_CONNECTED) {
+                if (state == BluetoothHeadset.STATE_CONNECTED &&
+                    mBluetoothHeadset.isBluetoothVoiceDialingSupported(mBluetoothDevice)) {
                     updateBluetoothParameters(true);
                     return;
+                } else {
+                    mBluetoothDevice = null;
                 }
             }
             updateBluetoothParameters(false);
@@ -449,13 +452,15 @@ public class VoiceDialerActivity extends Activity {
                 int state = intent.getIntExtra(BluetoothProfile.EXTRA_STATE, -1);
 
                 if (false) Log.d(TAG, "HEADSET STATE -> " + state);
-
                 if (state == BluetoothProfile.STATE_CONNECTED) {
                     if (device == null) {
                         return;
                     }
-                    mBluetoothDevice = device;
-                    updateBluetoothParameters(true);
+                    if (mBluetoothHeadset != null &&
+                        mBluetoothHeadset.isBluetoothVoiceDialingSupported(device)) {
+                        mBluetoothDevice = device;
+                        updateBluetoothParameters(true);
+                    }
                 } else if (state == BluetoothProfile.STATE_DISCONNECTED) {
                     mBluetoothDevice = null;
                     updateBluetoothParameters(false);
